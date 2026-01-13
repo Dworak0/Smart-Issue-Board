@@ -1,36 +1,75 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Smart Issue Board
 
-## Getting Started
+A premium, intelligent issue tracking system built with Next.js and Firebase.
 
-First, run the development server:
+## 🚀 Tech Stack & Justification
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+- **Frontend**: Next.js 15 (App Router).
+  - *Why?* I chose Next.js for its robust routing, server-side rendering capabilities (good for SEO), and simple deployment to Vercel. It provides a solid foundation for a "complex web app", ensuring high performance and scalability.
+- **Styling**: Tailwind CSS v4 + Custom CSS Variables.
+  - *Why?* To achieve a premium "Glassmorphism" aesthetic with speed and consistency. Tailwind allowed for rapid development of responsive layouts, while custom CSS variables enabled a sophisticated, maintainable dark theme that feels modern and unique.
+- **Backend**: Firebase Firestore & Auth.
+  - *Why?* Provides a serverless, real-time database perfect for collaborative tools like issue boards. It simplifies the backend complexity, allowing focus on frontend UX.
+- **Icons**: Lucide React.
+  - *Why?* Clean, consistent SVG icons that match the modern specific aesthetic.
+
+## 🗄 Firestore Data Structure
+
+I used a single collection `issues` for simplicity and speed, containing documents with the following structure:
+
+```typescript
+type Issue = {
+  id: string;          // Auto-generated Document ID
+  title: string;       // String
+  description: string; // String
+  priority: 'Low' | 'Medium' | 'High';
+  status: 'Open' | 'In Progress' | 'Done';
+  assignedTo: string;  // Email string
+  createdAt: number;   // Timestamp (Date.now())
+  createdBy: string;   // Email string
+}
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+This flat structure allows for easy querying, sorting, and real-time updates without complex joins, which fits the "Street-smart" requirement of avoiding over-engineering.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## 🧠 Similar Issue Handling
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+To prevent duplicate administrative work, the app performs an intelligent check when a user types a title for a new issue.
 
-## Learn More
+**Algorithm:**
+1. On the client side, I fetch the headers of recent issues (limit 100) when the "Create" page loads.
+2. As the user types the title, a real-time heuristic checks against existing titles:
+   - **Direct Matches**: Checks if the new title is a substring of an existing one (or vice versa).
+   - **Keyword Overlap**: Splits the title into significant words ( > 2 chars) and checks if an existing issue shares at least 2 significant words.
+3. **UX**: If a match is found, a non-intrusive "Potential duplicates detected" warning appears with links to the similar issues, but does not block the user from proceeding if they are sure.
 
-To learn more about Next.js, take a look at the following resources:
+This approach is efficient (client-side) and immediate, providing feedback without waiting for backend search service responses.
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+## ⚠️ Challenges
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+- **Tailwind v4 Integration**: Configuring the alpha/beta version of Tailwind v4 with Next.js was tricky. It required manual setup of CSS variables and careful handling of directives to ensure the glassmorphism effects rendered correctly across all browsers.
+- **Client-Side Search**: Implementing a "street smart" search and similarity check purely on the client-side without a heavy backend search engine required creative use of Javascript algorithms to ensure it remained performant even with a growing list of issues.
+- **Authentication State**: Managing the user's session state to prevent "flashing" of protected content before redirecting unauthenticated users required robust use of React Context and Next.js routing hooks.
 
-## Deploy on Vercel
+## 🔮 Future Improvements
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+1. **Comments System**: Allow users to discuss issues in a sub-collection.
+2. **Drag and Drop Board**: Replace the grid view with a Kanban-style drag-and-drop board (using `dnd-kit`).
+3. **Rich Text Editor**: Upgrade the description textarea to a markdown editor.
+4. **Backend Search**: For scaling beyond 100s of issues, implement Algolia or Typesense for fuzzy search.
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+## 🛠 Setup & Deployment
+
+1. **Clone the repo**
+2. **Install dependencies**: `npm install`
+3. **Environment Variables**:
+   Copy `.env.example` to `.env.local` and add your Firebase config:
+   ```
+   NEXT_PUBLIC_FIREBASE_API_KEY=...
+   NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN=...
+   NEXT_PUBLIC_FIREBASE_PROJECT_ID=...
+   ...
+   ```
+4. **Run Locally**: `npm run dev`
+5. **Deploy**: Push to GitHub and import the repository into Vercel. Add the same Environment Variables in the Vercel dashboard.
+# Smart-Issue-Board
