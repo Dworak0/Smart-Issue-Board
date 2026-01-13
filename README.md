@@ -72,4 +72,3 @@ This approach is efficient (client-side) and immediate, providing feedback witho
    ```
 4. **Run Locally**: `npm run dev`
 5. **Deploy**: Push to GitHub and import the repository into Vercel. Add the same Environment Variables in the Vercel dashboard.
-# Smart-Issue-Board
